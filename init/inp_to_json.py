@@ -21,6 +21,16 @@ def to_float(text):
 
 
 # parse a species in the inp file based on its formatting
+#
+# Species record in thermo.inp (2 + 3*n_ranges lines):
+#
+#    name line:  first word = name
+#    info line:  [0:2] n_ranges  [50:52] phase  [52:65] molar mass  [65:80] hf298
+#       
+#    per range:
+#        header:   [0:11] t_min  [11:22] t_max
+#        coef1:    a1-a5, 16 chars each
+#        coef2:    a6 a7 [blank] b1 b2, 16 chars each
 def parse_species(lines, start):
     name_line = lines[start]
     info_line = lines[start + 1]
