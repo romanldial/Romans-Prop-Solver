@@ -2,69 +2,78 @@
 
 import json
 
+
+# read the lines in the inp file
 def read_lines(path):
+    lines = []
     with open(path) as f:
-    for lines in f:
-        if line.startswith("!"):
-            continue
-        clean = line.rstrip("\n") 
-        line.append(clean)
+        for line in f:
+            if line.startswith("!"):
+                continue
+            clean = line.rstrip("\n") 
+            lines.append(clean)
     return lines
 
-lines = read_lines("init/thermo.inp")
-print(len(lines))
-print(lines[0:3])
-
-# ---------- Step 2: turn "1.23D+04" into a number ----------
+# convert data to a floating point number
 def to_float(text):
-    # replace "D" with "E"
-    # convert to float and return it
-    pass
+    text= text.replace("D", "E")
+    return float(text)
 
 
-# ---------- Step 3: parse ONE species ----------
-# lines = the full list of lines
-# start = index of this species' name line
-# returns two things: the species dict, and the index
-#         where the NEXT species starts
+# parse a species in the inp file based on its formatting
 def parse_species(lines, start):
-    # name_line = lines[start]
-    # info_line = lines[start + 1]
-    #
-    # name       = first word of name_line
-    # n_ranges   = int   of info_line[0:2]
-    # phase      = int   of info_line[50:52]
-    # molar_mass = float of info_line[52:65]
-    # hf298      = float of info_line[65:80]
-    #
-    # ranges = empty list
-    # i = start + 2        (first range header line)
-    # repeat n_ranges times:
-    #     header = lines[i]
-    #     coef1  = lines[i + 1]
-    #     coef2  = lines[i + 2]
-    #
-    #     t_min = float of header[0:11]
-    #     t_max = float of header[11:22]
-    #
-    #     a1..a5 = to_float of coef1, 16 chars each:
-    #              [0:16] [16:32] [32:48] [48:64] [64:80]
-    #     a6, a7 = to_float of coef2[0:16] and coef2[16:32]
-    #     (coef2[32:48] is the blank gap, skip it)
-    #     b1, b2 = to_float of coef2[48:64] and coef2[64:80]
-    #
-    #     add {"t_min", "t_max", "a": [a1..a7], "b": [b1, b2]}
-    #         to ranges
-    #     i = i + 3        (jump to the next range)
-    #
-    # if n_ranges == 0:
-    #     some reactants have one extra line instead of
-    #     ranges; we'll look at these later
-    #     i = start + 3
-    #
-    # species = {"name", "phase", "molar_mass", "hf298", "ranges"}
-    # return species, i
-    pass
+    name_line = lines[start]
+    info_line = lines[start + 1]
+    
+    name = name_line.split()[0]
+    n_ranges = int(info_line[0:2])
+    phase = int(info_line[50:52])
+    molar_mass = float(info_line[52:65])
+    hf298 = float(info_line[65:80])
+    
+    ranges = []
+    i = start + 2 
+    for k in range(n_ranges): 
+        header = lines[i]
+        coef1  = lines[i + 1]
+        coef2  = lines[i + 2]
+    
+        t_min = to_float(header[0:11])
+        t_max = to_float(header[11:22])
+    
+        a1 = to_float(coef1[0:16])
+        a2 = to_float(coef1[16:32])
+        a3 = to_float(coef1[32:48])
+        a4 = to_float(coef1[48:64])
+        a5 = to_float(coef1[64:80])
+
+        a6 = to_float(coef2[0:16])
+        a7 = to_float(coef2[16:32])
+
+        b1 = to_float(coef2[48:64])
+        b2 = to_float(coef2[64:80])
+
+        rng = {
+            "t_min": t_min,
+            "t_max": t_max,
+            "a": [a1, a2, a3, a4, a5, a6, a7],
+            "b": [b1, b2],
+        }
+        ranges.append(rng)
+        i = i + 3 
+    
+    if n_ranges == 0:
+        i = start + 3
+    
+    species = {
+        "name": name,
+        "phase": phase,
+        "molar_mass": molar_mass,
+        "hf298": hf298,
+        "ranges": ranges,
+    }
+    return species, i
+
 
 
 # ---------- Step 4: parse the whole file ----------
