@@ -106,7 +106,7 @@ def parse_all(lines):
 
         if name in data:
             existing = data[name]
-            if existing["phase"] == species["phase"]:
+            if (existing["phase"] == 0) == (species["phase"] == 0):
                 existing["ranges"].extend(species["ranges"])
                 continue
             else:
