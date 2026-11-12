@@ -102,19 +102,34 @@ def parse_all(lines):
     
         species, i = parse_species(lines, i)
         species["section"] = section
-        if species["name"] in data:
-            print("D U P L I C A T E   S P E C I E S :   ", species["name"])
-        data[species["name"]] = species
-    return data
-    
+        name = species["name"]
 
+        if name in data:
+            existing = data[name]
+            if existing["phase"] == species["phase"]:
+                existing["ranges"].extend(species["ranges"])
+                continue
+            else:
+                name = name + "(L)"
+                species["name"] = name
+        
+        data[name] = species
+
+    return data
+
+    
 # write .json file
 def write_json(data, path):
     with open(path, "w") as file:
         json.dump(data, file, indent=4)
 
 # run 
-lines = read_lines("thermo.inp")
+lines = read_lines("init/thermo.inp")
 data  = parse_all(lines)
-write_json(data, "thermo.json")
+write_json(data, "src/thermo.json")
+print()
+print("W R I T I N G   J S O N   F I L E")
+print()
 print("S P E C I E S   W R I T T E N :   ", len(data))
+print()
+print("T H A N K   Y O U")
