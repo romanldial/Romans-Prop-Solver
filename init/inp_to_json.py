@@ -106,17 +106,15 @@ def parse_all(lines):
             print("D U P L I C A T E   S P E C I E S :   ", species["name"])
         data[species["name"]] = species
     return data
+    
 
-
-# ---------- Step 5: write the JSON ----------
+# write .json file
 def write_json(data, path):
-    # open path for writing
-    # json.dump the data into it (indent=2 makes it readable)
-    pass
+    with open(path, "w") as file:
+        json.dump(data, file, indent=4)
 
-
-# ---------- Run it ----------
-# lines = read_lines("thermo.inp")
-# data  = parse_all(lines)
-# write_json(data, "thermo.json")
-# print how many species were written
+# run 
+lines = read_lines("thermo.inp")
+data  = parse_all(lines)
+write_json(data, "thermo.json")
+print("S P E C I E S   W R I T T E N :   ", len(data))
