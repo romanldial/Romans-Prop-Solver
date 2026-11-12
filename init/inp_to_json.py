@@ -2,7 +2,6 @@
 
 import json
 
-
 # read the lines in the inp file
 def read_lines(path):
     lines = []
@@ -86,29 +85,27 @@ def parse_species(lines, start):
 
 
 
-# ---------- Step 4: parse the whole file ----------
+# parse the whole file and throw warnings
 def parse_all(lines):
-    # data = empty dictionary
-    # i = 2   (after skipping ! lines, lines[0] is "thermo"
-    #          and lines[1] is the overall temperature line)
-    # section = "product"
-    #
-    # while i < number of lines:
-    #     line = lines[i]
-    #     if line starts with "END PRODUCTS":
-    #         section = "reactant"
-    #         i = i + 1
-    #         go back to the top of the loop
-    #     if line starts with "END REACTANTS":
-    #         stop the loop
-    #
-    #     species, i = parse_species(lines, i)
-    #     add section to species
-    #     if species name is already in data: print a warning
-    #     data[species name] = species
-    #
-    # return data
-    pass
+    data = {}
+    i = 2  
+    section = "product"
+    
+    while i < len(lines):
+        line = lines[i]
+        if line.startswith("END PRODUCTS"):
+            section = "reactant"
+            i = i + 1
+            continue
+        if line.startswith("END REACTANTS"):
+            break
+    
+        species, i = parse_species(lines, i)
+        species["section"] = section
+        if species["name"] in data:
+            print("D U P L I C A T E   S P E C I E S :   ", species["name"])
+        data[species["name"]] = species
+    return data
 
 
 # ---------- Step 5: write the JSON ----------
