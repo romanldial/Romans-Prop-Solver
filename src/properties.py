@@ -1,6 +1,8 @@
 # properties file
 
 import json
+import math
+
 
 # load the data
 def load_data(path):
@@ -27,7 +29,7 @@ def get_temp_range(species, T):
             raise ValueError("T E M P  N O T   I N   R A N G E :   " + str(T))
 
         
-# NASA 9 Cp Equation
+# NASA 9 Cp Equation J/(mol*K)
 def nasa9_cp(species, T):
     R = 8.314462618 # J/(mol*K)
     rng = get_temp_range(get_species(species), T)
@@ -38,12 +40,26 @@ def nasa9_cp(species, T):
     return cp
 
 
+# NASA 9 H Equation J/mol
+def nasa9_H(species, T):
+    R = 8.314462618 # J/(mol*K)
+    rng = get_temp_range(get_species(species), T)
+    a1, a2, a3, a4, a5, a6, a7 = rng["a"]
+
+    H = ( (-a1 * T**-2) + (a2 * math.log(T) / T) + a3 + (a4 * T / 2) + (a5 * T**2 / 3) + (a6 * T**3 / 4) + (a7 * T**4 / 5) + (rng["b"][0] / T) ) * (R * T)
+
+    return H 
+
+
+
+
+
 
 
 # testing
 data = load_data("src/thermo.json")
 print(nasa9_cp("N", 300))
 print(nasa9_cp("CO2", 298.15))
-
+print(nasa9_H("CO2", 298.15))
 
 
