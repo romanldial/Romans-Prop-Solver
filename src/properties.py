@@ -50,8 +50,13 @@ def nasa9_H(species, T):
 
     return H 
 
+# NASA 9 S Equation J/(mol*K)
+def nasa9_S(species, T):
+    R = 8.314462618 # J/(mol*K)
+    rng = get_temp_range(get_species(species), T)
+    a1, a2, a3, a4, a5, a6, a7 = rng["a"]
 
-
+    S = ( (-a1 * T**2 / 2) + (-a2 * T**-1) + (a3 * math.log(T)) + (a4 * T) + (a5 * T**2 / 2) + (a6 * T**3 / 3) + (a7 * T**4 / 4) + rng["b"][1] )* R
 
 
 
