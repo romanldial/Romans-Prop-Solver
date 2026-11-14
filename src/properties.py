@@ -2,6 +2,7 @@
 
 import json
 import math
+import os
 
 
 # load the data
@@ -9,8 +10,8 @@ def load_data(path):
     with open(path) as file:
         return json.load(file)
 
-DATA = load_data("src/thermo.json")
-
+HERE = os.path.dirname(os.path.abspath(__file__))
+DATA = load_data(os.path.join(HERE, "thermo.json"))
 
 # find a species by name
 def get_species(name):
@@ -25,8 +26,7 @@ def get_temp_range(species, T):
     for rng in species["ranges"]:
         if rng["t_min"] <= T <= rng["t_max"]:
             return rng
-        else:
-            raise ValueError("T E M P  N O T   I N   R A N G E :   " + str(T))
+    raise ValueError("T E M P  N O T   I N   R A N G E :   " + str(T))
 
         
 # NASA 9 Cp Equation J/(mol*K)
@@ -56,15 +56,7 @@ def nasa9_S(species, T):
     rng = get_temp_range(get_species(species), T)
     a1, a2, a3, a4, a5, a6, a7 = rng["a"]
 
-    S = ( (-a1 * T**2 / 2) + (-a2 * T**-1) + (a3 * math.log(T)) + (a4 * T) + (a5 * T**2 / 2) + (a6 * T**3 / 3) + (a7 * T**4 / 4) + rng["b"][1] )* R
+    S = ( (-a1 * T**-2 / 2) + (-a2 * T**-1) + (a3 * math.log(T)) + (a4 * T) + (a5 * T**2 / 2) + (a6 * T**3 / 3) + (a7 * T**4 / 4) + rng["b"][1] )* R
 
-
-
-
-# testing
-data = load_data("src/thermo.json")
-print(nasa9_cp("N", 300))
-print(nasa9_cp("CO2", 298.15))
-print(nasa9_H("CO2", 298.15))
-
+    return S
 
